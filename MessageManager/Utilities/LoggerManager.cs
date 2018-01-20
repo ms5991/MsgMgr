@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -390,7 +391,26 @@ namespace MsgMgr.Utilities
         /// <returns></returns>
         private bool ShouldLog(LogPriority priority, LogCategory primaryCategory, params LogCategory[] otherCategories)
         {
+           /*
+            *  Print verbose messages only if they belong to a category or priority that is configured to be printed.  See truth tables:
+            *                 
+            *  loggerIsVerbose  messageTaggedVerbose   verboseFilter
+            *        0                 0                    1      --> "Can log because message is not verbose"
+            *        0                 1                    0      --> "Cannot log because message is verbose but logger is not"
+            *        1                 0                    1      --> "Can log because message is not verbose"
+            *        1                 1                    1      --> "Can log because message is verbose and logger is verbose"
+            *
+            *  result  verboseFilter   shouldPrint
+            *     0          0              0     --> "message should not be logged based on category/priority, and it should not be logged because it was tagged verbose but the logger is not verbose"
+            *     0          1              0     --> "message should not be logged based on category/priority"
+            *     1          0              0     --> "message should not be logged because it was tagged verbose but the logger is not verbose"
+            *     1          1              1     --> "message should be logged based on category/priority, and it is not the case that (the message was tagged verbose and the logger is not verbose)"
+            *
+            */
+
             bool result;
+
+            bool verboseFilter = _categories.Contains(LogCategory.VERBOSE) || !(primaryCategory == LogCategory.VERBOSE || otherCategories.Contains(LogCategory.VERBOSE));
 
             switch (_mode)
             {
@@ -412,7 +432,7 @@ namespace MsgMgr.Utilities
                     break;
             }
 
-            return result;
+            return result && verboseFilter;
         }
 
         #endregion 
