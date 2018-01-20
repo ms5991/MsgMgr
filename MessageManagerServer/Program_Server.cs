@@ -3,10 +3,6 @@ using MsgMgr.Core;
 using MsgMgr.Messages;
 using MsgMgr.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MessageManagerServer
 {
@@ -17,7 +13,7 @@ namespace MessageManagerServer
         public static void Main(string[] args)
         {
             
-            Logger.Init(false,true, @"M:\Users\Michael\Documents\log.txt", LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL);
+            Logger.Init(false,true, @"M:\Users\Michael\Documents\log.txt", LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL, LogCategory.VERBOSE);
 
             MessageManager manager = new MessageManager();
             manager.StartManaging(new TcpServer("127.0.0.1", 8888));
@@ -37,7 +33,7 @@ namespace MessageManagerServer
         {
             StringMessage r = (StringMessage)e.Message;
 
-            Logger.Instance.LogMessage(r.Message, LogPriority.HIGH, LogCategory.INFO);
+            Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
         }
     }
 }

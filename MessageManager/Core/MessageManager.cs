@@ -2,11 +2,7 @@
 using MsgMgr.Utilities;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,6 +51,8 @@ namespace MsgMgr.Core
         /// </summary>
         private Task _receiveTask;
 
+        private object _managingLock = new object();
+
         #endregion
 
         #region Constructor
@@ -77,20 +75,6 @@ namespace MsgMgr.Core
         #region Public
 
         /// <summary>
-        /// Gets a value indicating whether this instance is managing.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is managing; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsManaging
-        {
-            get
-            {
-                return _isManaging;
-            }
-        }
-
-        /// <summary>
         /// Occurs when [message received].
         /// </summary>
         public event MessageManagerMessageReceivedEventHandler MessageReceived;
@@ -105,12 +89,20 @@ namespace MsgMgr.Core
         /// Enqueues the message.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void EnqueueMessage(MessageBase message)
+        public bool EnqueueMessage(MessageBase message)
         {
-            // TODO: fix race condition here
-            if (!_isManaging) { throw new InvalidOperationException("Manager is not currently managing!"); }
-            Logger.Instance.LogMessage("Enqueuing message: " + message.Identity, LogPriority.MEDIUM, LogCategory.VERBOSE);
-            _sendQueue.Enqueue(message);
+            bool success;
+            lock(_managingLock)
+            {
+                success = _isManaging;
+                if(_isManaging)
+                {
+                    Logger.Instance.LogMessage("Enqueuing message: " + message.Identity, LogPriority.MEDIUM, LogCategory.VERBOSE);
+                    _sendQueue.Enqueue(message);
+                }
+            }
+
+            return success;
         }
 
         /// <summary>
@@ -119,16 +111,19 @@ namespace MsgMgr.Core
         /// <param name="connection">The connection.</param>
         public void StartManaging(IConnection connection)
         {
-            if (_isManaging) { throw new InvalidOperationException("Manager is already managing!"); }
+            lock(_managingLock)
+            {
+                if (_isManaging) { throw new InvalidOperationException("Manager is already managing!"); }
 
-            _isManaging = true;
+                _isManaging = true;
 
-            _connection = connection;
+                _connection = connection;
 
-            _connection.InitializeNewConnection();
+                _connection.InitializeNewConnection();
 
-            _sendTask = SendAsync();
-            _receiveTask = ReceiveAsync();
+                _sendTask = SendAsync();
+                _receiveTask = ReceiveAsync();
+            }
         }
 
         /// <summary>
@@ -161,27 +156,30 @@ namespace MsgMgr.Core
         /// <exception cref="InvalidOperationException">Manager is not currently managing!</exception>
         private void StopManaging(string message, Exception e)
         {
-            if (_isManaging)
+            lock(_managingLock)
             {
-                Logger.Instance.LogMessage("Stopping managing: [{0}]".FormatStr(message), LogPriority.HIGH, LogCategory.INFO);
-                _isManaging = false;
+                if (_isManaging)
+                {
+                    Logger.Instance.LogMessage("Stopping managing: [{0}]".FormatStr(message), LogPriority.HIGH, LogCategory.INFO);
+                    _isManaging = false;
 
-                // cancel send and receive
-                Logger.Instance.LogMessage("Cancelling token!", LogPriority.LOW, LogCategory.DEBUG);
-                _sendReceiveTokenSource.Cancel();
+                    // cancel send and receive
+                    Logger.Instance.LogMessage("Cancelling token!", LogPriority.LOW, LogCategory.DEBUG);
+                    _sendReceiveTokenSource.Cancel();
 
-                Logger.Instance.LogMessage("Disconnecting connection in manager!", LogPriority.LOW, LogCategory.DEBUG);
-                // disconnect the connection
-                _connection.DisconnectIfConnected();
+                    Logger.Instance.LogMessage("Disconnecting connection in manager!", LogPriority.LOW, LogCategory.DEBUG);
+                    // disconnect the connection
+                    _connection.DisconnectIfConnected();
 
-                // dispose of the connection
-                _connection.Dispose();
+                    // dispose of the connection
+                    _connection.Dispose();
 
-                // can't clear -- just create a new one and the old will be GCed
-                _sendQueue = new ConcurrentQueue<MessageBase>();
+                    // can't clear -- just create a new one and the old will be GCed
+                    _sendQueue = new ConcurrentQueue<MessageBase>();
 
-                Logger.Instance.LogMessage("Managing stopped!", LogPriority.HIGH, LogCategory.INFO);
-                InvokeManagingStopped(message, e);
+                    Logger.Instance.LogMessage("Managing stopped!", LogPriority.HIGH, LogCategory.INFO);
+                    InvokeManagingStopped(message, e);
+                }
             }
         }
 
@@ -204,10 +202,8 @@ namespace MsgMgr.Core
                         {
                             Logger.Instance.LogMessage("Sending [" + toSend.Identity + "] saying [" + ((StringMessage)toSend).Message + "]", LogPriority.LOW, LogCategory.VERBOSE);
                             toSend.TimeSent = DateTime.Now;
-
-                            byte[] serialized = MessageBase.Serialize(toSend);
-
-                            stillConnected = _connection.Send(serialized, serialized.Length);
+                            
+                            stillConnected = _connection.Send(toSend);
 
                             if (!stillConnected)
                             {
@@ -216,7 +212,7 @@ namespace MsgMgr.Core
                         }
                         catch (Exception e)
                         {
-                            StopManaging("Exception encountered during receiving!", e);
+                            StopManaging("Exception encountered during sending!", e);
                             break;
                         }
                     }
@@ -239,7 +235,7 @@ namespace MsgMgr.Core
         {
             Action receiveAction = new Action(() =>
             {
-                byte[] received = null;
+                MessageBase received = null;
                 bool stillConnected;
                 while (!_sendReceiveTokenSource.IsCancellationRequested)
                 {
@@ -253,6 +249,7 @@ namespace MsgMgr.Core
 
                         if(!stillConnected)
                         {
+                            received = null;
                             StopManaging("Connection disconnected", null);
                         }
                     }
@@ -265,11 +262,9 @@ namespace MsgMgr.Core
                     //if there was data received
                     if (received != null)
                     {
-                        MessageBase result = MessageBase.Deserialize(received, received.Length);
-
-                        result.TimeReceived = DateTime.Now;
+                        received.TimeReceived = DateTime.Now;
                         
-                        InvokeMessageReceived(result);
+                        InvokeMessageReceived(received);
                     }
                 }
             });

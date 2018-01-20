@@ -1,14 +1,7 @@
 ﻿using Newtonsoft.Json;
-using MsgMgr.Utilities;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
-using System.Threading;
 
 namespace MsgMgr.Core
 {
@@ -30,6 +23,7 @@ namespace MsgMgr.Core
         /// <value>
         /// The time sent.
         /// </value>
+        [JsonProperty]
         public DateTime TimeSent { get; set; }
 
         /// <summary>
@@ -38,6 +32,7 @@ namespace MsgMgr.Core
         /// <value>
         /// The time received.
         /// </value>
+        [JsonProperty]
         public DateTime TimeReceived { get; set; }
 
         /// <summary>
@@ -58,35 +53,50 @@ namespace MsgMgr.Core
 
         #region Serialization
 
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+
         /// <summary>
-        /// Serializes the specified Message.
+        /// Serializes the specified Message to JSON, then encodes that as ASCII.
         /// </summary>
         /// <param name="toSerialize">To serialize.</param>
         /// <returns></returns>
-        internal static byte[] Serialize(MessageBase toSerialize)
+        internal static byte[] SerializeToBytes(MessageBase toSerialize)
         {
-            // encode to json first so the networking can be cross platform
-            JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-                        
-            string jsonStr = JsonConvert.SerializeObject(toSerialize, settings);
-
+            string jsonStr = JsonConvert.SerializeObject(toSerialize, _settings);
 
             return Encoding.ASCII.GetBytes(jsonStr);
         }
-
-
+        
         /// <summary>
-        /// Deserializes the specified data.
+        /// Deserializes the data from bytes to MessageBase.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        internal static MessageBase Deserialize(byte[] data, int length)
+        internal static MessageBase DeserializeFromBytes(byte[] data, int length)
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
             string jsonStr = Encoding.ASCII.GetString(data, 0, length);
 
+            return JsonConvert.DeserializeObject<MessageBase>(jsonStr, _settings);
+        }
 
-            return JsonConvert.DeserializeObject<MessageBase>(jsonStr, settings);
+        /// <summary>
+        /// Serializes the specified Message to json string.
+        /// </summary>
+        /// <param name="toSerialize">To serialize.</param>
+        /// <returns></returns>
+        internal static string SerializeToJsonString(MessageBase toSerialize)
+        {
+            return JsonConvert.SerializeObject(toSerialize, _settings);
+        }
+        
+        /// <summary>
+        /// Deserializes the data from json string to MessageBase.
+        /// </summary>
+        /// <param name="jsonStr">The json string.</param>
+        /// <returns></returns>
+        internal static MessageBase DeserializeFromJsonString(string jsonStr)
+        {
+            return JsonConvert.DeserializeObject<MessageBase>(jsonStr, _settings);
         }
 
         #endregion

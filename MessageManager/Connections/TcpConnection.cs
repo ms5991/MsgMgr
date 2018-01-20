@@ -1,13 +1,9 @@
 ﻿using MsgMgr.Core;
 using MsgMgr.Utilities;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MsgMgr.Connections
 {
@@ -80,20 +76,17 @@ namespace MsgMgr.Connections
         }
 
         /// <summary>
-        /// Performs a single send action, sending the specified data, which is of the specified length.  Return value indicates whether the IConnection is still connected
+        /// Performs a single send action, sending the specified message.  Return value indicates whether the IConnection is still connected
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>
-        /// Whether this instance is still connected
-        /// </returns>
+        /// <param name="toSend">Message to send.</param>
+        /// <returns></returns>
         /// <exception cref="InvalidOperationException">TcpServer not initialized</exception>
-        /// <exception cref="ArgumentException">TcpConnection send: Length cannot be less than 1!</exception>
-        public bool Send(byte[] data, int length)
+        public bool Send(MessageBase toSend)
         {
             if (Client == null) { throw new InvalidOperationException("TcpServer not initialized"); }
-           
-            if(length < 1) { throw new ArgumentException("TcpConnection send: Length cannot be less than 1!"); }
+
+            byte[] data = MessageBase.SerializeToBytes(toSend);
+            int length = data.Length;
 
             _sendStream.Position = 0;
             byte[] serLen = length.Serialize();
@@ -126,9 +119,10 @@ namespace MsgMgr.Connections
         /// The received data
         /// </returns>
         /// <exception cref="InvalidOperationException">TcpServer not initialized</exception>
-        public byte[] Receive(out bool stillConnected)
+        public MessageBase Receive(out bool stillConnected)
         {
             if (Client == null) { throw new InvalidOperationException("TcpServer not initialized"); }
+
             stillConnected = true;
             int count = 0;
             byte[] lengthBuffer = new byte[sizeof(int)];
@@ -142,23 +136,26 @@ namespace MsgMgr.Connections
                 if (bytesToRead == 0)
                 {
                     Logger.Instance.LogMessage("Received zero bytes from endpoint", LogPriority.LOW, LogCategory.NETWORK);
+                    stillConnected = false;
                 }
-
-                result = new byte[bytesToRead];
-                
-                while (bytesToRead > 0)
+                else
                 {
-                    int read = Client.Receive(result, count, bytesToRead, SocketFlags.None, out err);
+                    result = new byte[bytesToRead];
+                
+                    while (bytesToRead > 0)
+                    {
+                        int read = Client.Receive(result, count, bytesToRead, SocketFlags.None, out err);
 
-                    if(err == SocketError.Success)
-                    {
-                        bytesToRead -= read;
-                        count += read;
-                    }
-                    else
-                    {
-                        stillConnected = false;
-                        break;
+                        if(err == SocketError.Success)
+                        {
+                            bytesToRead -= read;
+                            count += read;
+                        }
+                        else
+                        {
+                            stillConnected = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -167,7 +164,17 @@ namespace MsgMgr.Connections
                 stillConnected = false;
             }
 
-            return result;
+            MessageBase toReturn;
+            if(result != null)
+            {
+                toReturn = MessageBase.DeserializeFromBytes(result, result.Length);
+            }
+            else
+            {
+                toReturn = null;
+            }
+
+            return toReturn;
         }
 
         #region IDisposable Support
