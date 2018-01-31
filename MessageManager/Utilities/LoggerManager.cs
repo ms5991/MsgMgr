@@ -142,7 +142,11 @@ namespace MsgMgr.Utilities
             {
                 // _instance is not null after the first thread leaves this critical section
                 shouldThrow = _instance.IsNotNull();
-                _instance = new Logger(logAsync, useConsole, logFile, threshold, mode, categories);
+
+                if(!shouldThrow)
+                {
+                    _instance = new Logger(logAsync, useConsole, logFile, threshold, mode, categories);
+                }
             }
 
             // throw if this was called more than once

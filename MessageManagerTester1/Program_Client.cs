@@ -13,7 +13,7 @@ namespace MessageManagerClient
 
         public static void Main(string[] args)
         {
-            Logger.Init(true, LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL);
+            Logger.Init(true, LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL, LogCategory.VERBOSE);
 
             bool managing = true;
 

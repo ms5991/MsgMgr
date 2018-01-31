@@ -20,7 +20,6 @@ namespace MsgMgr.Connections
         /// <summary>
         /// Initializes a new connection.  If a connection already exists that conflicts with this connection attempt, the IConnection
         /// implementation should disconnect the existing connection
-        /// I.e. the method should be idempotent
         /// </summary>
         public override void InitializeNewConnection()
         {
