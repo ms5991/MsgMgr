@@ -22,6 +22,11 @@ namespace MsgMgr.Core
         private ConcurrentQueue<MessageBase> _sendQueue;
 
         /// <summary>
+        /// The receiver that will process received messages
+        /// </summary>
+        private IMessageReceiver _receiver;
+
+        /// <summary>
         /// The connection
         /// </summary>
         private IConnection _connection;
@@ -60,8 +65,10 @@ namespace MsgMgr.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageManager"/> class.
         /// </summary>
-        public MessageManager()
+        public MessageManager(IMessageReceiver receiver)
         {
+            _receiver = receiver;
+
             _sendQueue = new ConcurrentQueue<MessageBase>();
             _sendReceiveTokenSource = new CancellationTokenSource();
             _receiveStream = new MemoryStream();
@@ -73,11 +80,6 @@ namespace MsgMgr.Core
         #endregion
 
         #region Public
-
-        /// <summary>
-        /// Occurs when [message received].
-        /// </summary>
-        public event MessageManagerMessageReceivedEventHandler MessageReceived;
 
 
         /// <summary>
@@ -263,8 +265,9 @@ namespace MsgMgr.Core
                     if (received != null)
                     {
                         received.TimeReceived = DateTime.Now;
-                        
-                        InvokeMessageReceived(received);
+
+                        // send the message over to the receiver
+                        _receiver.AcceptReceivedMessage(received);
                     }
                 }
             });
@@ -274,15 +277,6 @@ namespace MsgMgr.Core
             receiveTask.Start();
 
             return receiveTask;
-        }
-        
-        /// <summary>
-        /// Invokes the message received.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void InvokeMessageReceived(MessageBase message)
-        {
-            MessageReceived?.Invoke(new MessageManagerMessageReceivedEventArgs(message));
         }
 
         /// <summary>

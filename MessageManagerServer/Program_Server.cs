@@ -1,6 +1,7 @@
 ﻿using MsgMgr.Connections;
 using MsgMgr.Core;
 using MsgMgr.Messages;
+using MsgMgr.Receivers;
 using MsgMgr.Utilities;
 using System;
 
@@ -10,15 +11,29 @@ namespace MessageManagerServer
     {
         public static volatile int re = 0;
 
-        public static void Main(string[] args)
-        {
-            
-            Logger.Init(false,true, @"M:\Users\Michael\Documents\log.txt", LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL, LogCategory.VERBOSE);
+        public static volatile bool stopped = false;
 
-            MessageManager manager = new MessageManager();
+        public static void Main(string[] args)
+        {            
+            Logger.Init(true, LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL, LogCategory.VERBOSE);
+
+            QueuedMessageReceiver receiver = new QueuedMessageReceiver();
+            
+            MessageManager manager = new MessageManager(receiver);
             manager.StartManaging(new TcpServer("127.0.0.1", 8888));
 
-            manager.MessageReceived += Manager_MessageReceived;
+            manager.ManagingStopped += Manager_ManagingStopped;
+
+            while(!stopped)
+            {
+                MessageBase receivedMessage;
+                if(receiver.TryGetMessage(out receivedMessage))
+                {
+                    StringMessage r = (StringMessage)receivedMessage;
+
+                    Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+                }
+            }
 
             
             Console.ReadLine();
@@ -29,11 +44,16 @@ namespace MessageManagerServer
 
         }
 
-        private static void Manager_MessageReceived(MessageManagerMessageReceivedEventArgs e)
+        private static void Receiver_MessageReceived(MessageManagerMessageReceivedEventArgs e)
         {
             StringMessage r = (StringMessage)e.Message;
 
             Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+        }
+
+        private static void Manager_ManagingStopped(MessageManagerManagingStoppedEventArgs e)
+        {
+            stopped = true;
         }
     }
 }
