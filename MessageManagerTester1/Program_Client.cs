@@ -1,6 +1,7 @@
 ﻿using MsgMgr.Connections;
 using MsgMgr.Core;
 using MsgMgr.Messages;
+using MsgMgr.Receivers;
 using MsgMgr.Utilities;
 using System;
 using System.Threading;
@@ -17,7 +18,9 @@ namespace MessageManagerClient
 
             bool managing = true;
 
-            MessageManager manager = new MessageManager();
+            IMessageReceiver receiver = new QueuedMessageReceiver();
+
+            MessageManager manager = new MessageManager(receiver);
             manager.ManagingStopped += Manager_ManagingStopped;
             manager.StartManaging(new TcpClient("127.0.0.1", 8888));
             int i = 0;
