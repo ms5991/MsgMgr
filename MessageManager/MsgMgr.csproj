@@ -46,7 +46,7 @@
     <Compile Include="Connections\TcpClient.cs" />
     <Compile Include="Connections\TcpConnection.cs" />
     <Compile Include="Connections\TcpServer.cs" />
-    <Compile Include="Core\IMessageReceiver.cs" />
+    <Compile Include="Core\MessageReceiver.cs" />
     <Compile Include="Core\MessageManagerManagingStoppedEventArgs.cs" />
     <Compile Include="Messages\EmptyMessage.cs" />
     <Compile Include="Core\IConnection.cs" />

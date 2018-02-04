@@ -18,7 +18,7 @@ namespace MessageManagerClient
 
             bool managing = true;
 
-            IMessageReceiver receiver = new QueuedMessageReceiver();
+            MessageReceiver receiver = new QueuedMessageReceiver(false);
 
             MessageManager manager = new MessageManager(receiver);
             manager.ManagingStopped += Manager_ManagingStopped;
@@ -30,7 +30,7 @@ namespace MessageManagerClient
                 MessageBase m = new StringMessage("Hello {0}".FormatStr(i++));
                 manager.EnqueueMessage(m);
 
-                Thread.Sleep(1);
+                Thread.Sleep(10);
             }
             Logger.Instance.LogMessage("Ready to cancel on key hit, generated: " + i + " messages", LogPriority.CRITICAL, LogCategory.INFO);
             

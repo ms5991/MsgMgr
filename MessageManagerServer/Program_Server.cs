@@ -17,7 +17,7 @@ namespace MessageManagerServer
         {            
             Logger.Init(true, LogPriority.LOW, LogMode.PRIORITY_OR_CATEGORY, LogCategory.ALL, LogCategory.VERBOSE);
 
-            QueuedMessageReceiver receiver = new QueuedMessageReceiver();
+            QueuedMessageReceiver receiver = new QueuedMessageReceiver(false);
             
             MessageManager manager = new MessageManager(receiver);
             manager.StartManaging(new TcpServer("127.0.0.1", 8888));

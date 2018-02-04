@@ -282,7 +282,7 @@ namespace MsgMgr.Utilities
         {
             string message = "{0}: {1}: {2}".FormatStr(ex.GetType(), ex.Message, ex.StackTrace);
 
-            LogMessageDTO toLog = new LogMessageDTO(message + " " + _logQueue.Count, LogPriority.HIGH, LogCategory.EXCEPTION);
+            LogMessageDTO toLog = new LogMessageDTO(message, LogPriority.HIGH, LogCategory.EXCEPTION);
 
             if (_logAsync)
             {
@@ -349,11 +349,11 @@ namespace MsgMgr.Utilities
             });
 
             //start task
-            Task sendTask = new Task(logAction, _cancellationToken.Token, TaskCreationOptions.LongRunning);
+            Task logTask = new Task(logAction, _cancellationToken.Token, TaskCreationOptions.LongRunning);
 
-            sendTask.Start();
+            logTask.Start();
 
-            return sendTask;
+            return logTask;
         }
 
         /// <summary>

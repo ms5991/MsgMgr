@@ -24,7 +24,7 @@ namespace MsgMgr.Core
         /// <summary>
         /// The receiver that will process received messages
         /// </summary>
-        private IMessageReceiver _receiver;
+        private MessageReceiver _receiver;
 
         /// <summary>
         /// The connection
@@ -65,7 +65,7 @@ namespace MsgMgr.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageManager"/> class.
         /// </summary>
-        public MessageManager(IMessageReceiver receiver)
+        public MessageManager(MessageReceiver receiver)
         {
             _receiver = receiver;
 

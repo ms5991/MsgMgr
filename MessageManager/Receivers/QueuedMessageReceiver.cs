@@ -8,16 +8,23 @@ using System.Collections.Concurrent;
 
 namespace MsgMgr.Receivers
 {
-    public class QueuedMessageReceiver : IMessageReceiver
+    public class QueuedMessageReceiver : MessageReceiver
     {
-        private ConcurrentQueue<MessageBase> _receivedQueue = new ConcurrentQueue<MessageBase>();        
+        private ConcurrentQueue<MessageBase> _receivedQueue;
+
+        public QueuedMessageReceiver(bool invokeMessageInvokeOnReceive) : base(invokeMessageInvokeOnReceive)
+        {
+            _receivedQueue = new ConcurrentQueue<MessageBase>();
+        }
 
         /// <summary>
         /// Accepts a received message.  Enqueues the message so that the processing thread can dequeue it.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void AcceptReceivedMessage(MessageBase message)
+        internal override void AcceptReceivedMessage(MessageBase message)
         {
+            base.AcceptReceivedMessage(message);
+
             // this allows other threads to access messages in the order they were received
             // this is better than an event based notification system (though that is supported)
             // because it's not "fire and forget"
