@@ -2,7 +2,8 @@
 using MsgMgr.Core;
 using MsgMgr.Messages;
 using MsgMgr.Receivers;
-using MsgMgr.Utilities;
+using MsgMgrCommon.Extensions;
+using MsgMgrCommon.Logging;
 using System;
 using System.Threading;
 

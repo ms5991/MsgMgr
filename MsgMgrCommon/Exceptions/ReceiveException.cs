@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MsgMgr.Utilities
-{
+namespace MsgMgrCommon.Exceptions
+{ 
     public class ReceiveException : Exception
     {
         public ReceiveException(string message, Exception inner) : base(message, inner)

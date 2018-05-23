@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MsgMgrCommon.Extensions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MsgMgr.Utilities
+namespace MsgMgrCommon.Logging
 {
     /// <summary>
     /// Priority level for logging

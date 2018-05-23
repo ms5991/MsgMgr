@@ -1,5 +1,6 @@
 ﻿using MsgMgr.Messages;
-using MsgMgr.Utilities;
+using MsgMgrCommon.Extensions;
+using MsgMgrCommon.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.IO;

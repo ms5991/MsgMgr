@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
-using MsgMgr.Utilities;
+using MsgMgrCommon.Logging;
 
 namespace MsgMgr.Connections
 {
