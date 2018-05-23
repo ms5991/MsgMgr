@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CADFB567-F27B-4F9F-BCCF-159881FB8B5D}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>MessageManagerServer</RootNamespace>
-    <AssemblyName>MessageManagerServer</AssemblyName>
+    <ProjectGuid>{1CA01638-77BF-4833-A726-841B2E95F717}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MsgMgrCommon</RootNamespace>
+    <AssemblyName>MsgMgrCommon</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,21 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program_Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MessageManager\MsgMgr.csproj">
-      <Project>{63793231-213f-4f9b-bbd6-e8dc06ada67c}</Project>
-      <Name>MsgMgr</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MsgMgrCommon\MsgMgrCommon.csproj">
-      <Project>{1ca01638-77bf-4833-a726-841b2e95f717}</Project>
-      <Name>MsgMgrCommon</Name>
-    </ProjectReference>
+    <Compile Include="Extensions\ICollectionExtensions.cs" />
+    <Compile Include="Extensions\IntExtensions.cs" />
+    <Compile Include="Logging\LoggerManager.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Exceptions\ReceiveException.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

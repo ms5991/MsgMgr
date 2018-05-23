@@ -53,6 +53,10 @@
       <Project>{63793231-213f-4f9b-bbd6-e8dc06ada67c}</Project>
       <Name>MsgMgr</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MsgMgrCommon\MsgMgrCommon.csproj">
+      <Project>{1ca01638-77bf-4833-a726-841b2e95f717}</Project>
+      <Name>MsgMgrCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -57,15 +57,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Receivers\MessageEventReceiver.cs" />
     <Compile Include="Receivers\QueuedMessageReceiver.cs" />
-    <Compile Include="Utilities\ICollectionExtensions.cs" />
-    <Compile Include="Utilities\LoggerManager.cs" />
-    <Compile Include="Utilities\IntExtensions.cs" />
-    <Compile Include="Utilities\ObjectExtensions.cs" />
-    <Compile Include="Utilities\ReceiveException.cs" />
-    <Compile Include="Utilities\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MsgMgrCommon\MsgMgrCommon.csproj">
+      <Project>{1ca01638-77bf-4833-a726-841b2e95f717}</Project>
+      <Name>MsgMgrCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
