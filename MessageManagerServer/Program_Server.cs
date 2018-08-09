@@ -31,7 +31,7 @@ namespace MessageManagerServer
                 {
                     StringMessage r = (StringMessage)receivedMessage;
 
-                    Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+                    Logger.Instance.LogMessage("[" + r.Identity + "]" + ": " + r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
                 }
             }
 
@@ -48,7 +48,7 @@ namespace MessageManagerServer
         {
             StringMessage r = (StringMessage)e.Message;
 
-            Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+            Logger.Instance.LogMessage("[" + r.Identity +"]" + ": " +  r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
         }
 
         private static void Manager_ManagingStopped(MessageManagerManagingStoppedEventArgs e)

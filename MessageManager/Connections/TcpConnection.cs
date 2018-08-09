@@ -1,4 +1,5 @@
 ﻿using MsgMgr.Core;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -85,7 +86,7 @@ namespace MsgMgr.Connections
         {
             if (Client == null) { throw new InvalidOperationException("TcpServer not initialized"); }
 
-            byte[] data = MessageBase.SerializeToBytes(toSend);
+            byte[] data = toSend.Serialize(SerializationType.XML);
             int length = data.Length;
 
             _sendStream.Position = 0;
@@ -167,7 +168,7 @@ namespace MsgMgr.Connections
             MessageBase toReturn;
             if(result != null)
             {
-                toReturn = MessageBase.DeserializeFromBytes(result, result.Length);
+                toReturn = (MessageBase)SerializableBase.Deserialize(result, SerializationType.XML);
             }
             else
             {
