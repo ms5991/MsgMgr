@@ -2,6 +2,7 @@
 using MsgMgr.Core;
 using MsgMgr.Messages;
 using MsgMgr.Receivers;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -21,7 +22,7 @@ namespace MessageManagerClient
 
             MessageReceiver receiver = new QueuedMessageReceiver(false);
 
-            MessageManager manager = new MessageManager(receiver);
+            MessageManager manager = new MessageManager(receiver, SerializationType.XML);
             manager.ManagingStopped += Manager_ManagingStopped;
             manager.StartManaging(new TcpClient("127.0.0.1", 8888));
             int i = 0;
