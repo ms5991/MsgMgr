@@ -2,6 +2,7 @@
 using MsgMgr.Core;
 using MsgMgr.Messages;
 using MsgMgr.Receivers;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -21,12 +22,12 @@ namespace MessageManagerClient
 
             MessageReceiver receiver = new QueuedMessageReceiver(false);
 
-            MessageManager manager = new MessageManager(receiver);
+            MessageManager manager = new MessageManager(receiver, SerializationType.XML);
             manager.ManagingStopped += Manager_ManagingStopped;
             manager.StartManaging(new TcpClient("127.0.0.1", 8888));
             int i = 0;
 
-            while(managing)
+            while(managing && i < 10)
             {
                 MessageBase m = new StringMessage("Hello {0}".FormatStr(i++));
                 manager.EnqueueMessage(m);
@@ -34,7 +35,8 @@ namespace MessageManagerClient
                 Thread.Sleep(10);
             }
             Logger.Instance.LogMessage("Ready to cancel on key hit, generated: " + i + " messages", LogPriority.CRITICAL, LogCategory.INFO);
-            
+
+            Console.ReadLine();
 
             manager.StopManaging("Called in client");
             Console.ReadLine();

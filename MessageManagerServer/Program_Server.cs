@@ -2,6 +2,7 @@
 using MsgMgr.Core;
 using MsgMgr.Messages;
 using MsgMgr.Receivers;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Logging;
 using System;
 
@@ -19,7 +20,7 @@ namespace MessageManagerServer
 
             QueuedMessageReceiver receiver = new QueuedMessageReceiver(false);
             
-            MessageManager manager = new MessageManager(receiver);
+            MessageManager manager = new MessageManager(receiver, SerializationType.XML);
             manager.StartManaging(new TcpServer("127.0.0.1", 8888));
 
             manager.ManagingStopped += Manager_ManagingStopped;
@@ -31,7 +32,7 @@ namespace MessageManagerServer
                 {
                     StringMessage r = (StringMessage)receivedMessage;
 
-                    Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+                    Logger.Instance.LogMessage("[" + r.Identity + "]" + ": " + r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
                 }
             }
 
@@ -48,7 +49,7 @@ namespace MessageManagerServer
         {
             StringMessage r = (StringMessage)e.Message;
 
-            Logger.Instance.LogMessage(r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
+            Logger.Instance.LogMessage("[" + r.Identity +"]" + ": " +  r.Message + " at " + r.TimeReceived, LogPriority.HIGH, LogCategory.INFO);
         }
 
         private static void Manager_ManagingStopped(MessageManagerManagingStoppedEventArgs e)

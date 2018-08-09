@@ -1,4 +1,5 @@
 ﻿using MsgMgr.Messages;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -31,6 +32,11 @@ namespace MsgMgr.Core
         /// The connection
         /// </summary>
         private IConnection _connection;
+
+        /// <summary>
+        /// The connection
+        /// </summary>
+        private SerializationType _serializationType;
 
         /// <summary>
         /// The send receive token source
@@ -66,14 +72,14 @@ namespace MsgMgr.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageManager"/> class.
         /// </summary>
-        public MessageManager(MessageReceiver receiver)
+        public MessageManager(MessageReceiver receiver, SerializationType serializationType)
         {
             _receiver = receiver;
 
             _sendQueue = new ConcurrentQueue<MessageBase>();
             _sendReceiveTokenSource = new CancellationTokenSource();
             _receiveStream = new MemoryStream();
-
+            _serializationType = serializationType;
             _isManaging = false;
         }
 
@@ -206,7 +212,7 @@ namespace MsgMgr.Core
                             Logger.Instance.LogMessage("Sending [" + toSend.Identity + "] saying [" + ((StringMessage)toSend).Message + "]", LogPriority.LOW, LogCategory.VERBOSE);
                             toSend.TimeSent = DateTime.Now;
                             
-                            stillConnected = _connection.Send(toSend);
+                            stillConnected = _connection.Send(toSend, _serializationType);
 
                             if (!stillConnected)
                             {
@@ -248,7 +254,7 @@ namespace MsgMgr.Core
                     try
                     {
                         //try receive a message
-                        received = _connection.Receive(out stillConnected);
+                        received = _connection.Receive(out stillConnected, _serializationType);
 
                         if(!stillConnected)
                         {

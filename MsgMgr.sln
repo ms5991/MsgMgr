@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageManagerServer", "Mes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgMgrCommon", "MsgMgrCommon\MsgMgrCommon.csproj", "{1CA01638-77BF-4833-A726-841B2E95F717}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgMgrGenericTest", "MsgMgrGenericTest\MsgMgrGenericTest.csproj", "{46258833-63A9-4C35-8867-EB33E74EC7DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{1CA01638-77BF-4833-A726-841B2E95F717}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CA01638-77BF-4833-A726-841B2E95F717}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CA01638-77BF-4833-A726-841B2E95F717}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46258833-63A9-4C35-8867-EB33E74EC7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46258833-63A9-4C35-8867-EB33E74EC7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46258833-63A9-4C35-8867-EB33E74EC7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46258833-63A9-4C35-8867-EB33E74EC7DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

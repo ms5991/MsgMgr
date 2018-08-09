@@ -1,4 +1,5 @@
 ﻿using MsgMgr.Core;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -79,13 +80,15 @@ namespace MsgMgr.Connections
         /// Performs a single send action, sending the specified message.  Return value indicates whether the IConnection is still connected
         /// </summary>
         /// <param name="toSend">Message to send.</param>
+        /// <param name="serType">Type of the serialization to use.</param>
         /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">TcpServer not initialized</exception>
         /// <exception cref="InvalidOperationException">TcpServer not initialized</exception>
-        public bool Send(MessageBase toSend)
+        public bool Send(MessageBase toSend, SerializationType serType)
         {
             if (Client == null) { throw new InvalidOperationException("TcpServer not initialized"); }
 
-            byte[] data = MessageBase.SerializeToBytes(toSend);
+            byte[] data = toSend.Serialize(serType);
             int length = data.Length;
 
             _sendStream.Position = 0;
@@ -115,11 +118,13 @@ namespace MsgMgr.Connections
         /// Performs a single receive attempt.  Returns the resulting data from the receive, and the out parameter indicates whether the IConnection is still connected
         /// </summary>
         /// <param name="stillConnected">if set to <c>true</c> [still connected].</param>
+        /// <param name="serType">Type of the serialization to use.</param>
         /// <returns>
         /// The received data
         /// </returns>
+        /// <exception cref="System.InvalidOperationException">TcpServer not initialized</exception>
         /// <exception cref="InvalidOperationException">TcpServer not initialized</exception>
-        public MessageBase Receive(out bool stillConnected)
+        public MessageBase Receive(out bool stillConnected, SerializationType serType)
         {
             if (Client == null) { throw new InvalidOperationException("TcpServer not initialized"); }
 
@@ -167,7 +172,7 @@ namespace MsgMgr.Connections
             MessageBase toReturn;
             if(result != null)
             {
-                toReturn = MessageBase.DeserializeFromBytes(result, result.Length);
+                toReturn = (MessageBase)SerializableBase.Deserialize(result, serType);
             }
             else
             {

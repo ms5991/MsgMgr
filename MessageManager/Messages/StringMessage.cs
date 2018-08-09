@@ -1,4 +1,5 @@
 ﻿using MsgMgr.Core;
+using MsgMgr.Serialization;
 using MsgMgrCommon.Extensions;
 using MsgMgrCommon.Logging;
 using System;
@@ -9,10 +10,15 @@ using System.Threading.Tasks;
 
 namespace MsgMgr.Messages
 {
-    [Serializable]
     public class StringMessage : MessageBase
     {
-        public string Message { get; }
+        [SerializableProperty]
+        public string Message { get; private set; }
+
+        public StringMessage()
+        {
+            Message = string.Empty;
+        }
 
         public StringMessage(string message) : base()
         {

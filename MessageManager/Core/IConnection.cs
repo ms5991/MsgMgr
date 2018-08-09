@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MsgMgr.Serialization;
+using System;
 
 namespace MsgMgr.Core
 {
@@ -19,14 +20,18 @@ namespace MsgMgr.Core
         /// Performs a single send action, sending the specified message.  Return value indicates whether the IConnection is still connected
         /// </summary>
         /// <param name="toSend">Message to send.</param>
+        /// <param name="serType">Type of the serialization to use.</param>
         /// <returns></returns>
-        bool Send(MessageBase toSend);
+        bool Send(MessageBase toSend, SerializationType serType);
 
         /// <summary>
         /// Performs a single receive attempt.  Returns the resulting data from the receive, and the out parameter indicates whether the IConnection is still connected.
         /// </summary>
         /// <param name="stillConnected">if set to <c>true</c> [still connected].</param>
-        /// <returns>The received data</returns>
-        MessageBase Receive(out bool stillConnected);
+        /// <param name="serType">Type of the serialization to use.</param>
+        /// <returns>
+        /// The received data
+        /// </returns>
+        MessageBase Receive(out bool stillConnected, SerializationType serType);
     }
 }
